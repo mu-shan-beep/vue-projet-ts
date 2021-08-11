@@ -13,8 +13,16 @@
 > 一般用来定义一个基本类型的响应式数据
 
 ## reactive:定义一个复杂的响应式数据
->返回对象的代理对象Proxy，被代理的目标对象是传入的对象
+
+> 返回对象的代理对象 Proxy，被代理的目标对象是传入的对象
 > 作用: 定义多个数据的响应式
 > const proxy = reactive(obj): 接收一个普通对象然后返回该普通对象的响应式代理器对象
 > 响应式转换是“深层的”：会影响对象内部所有嵌套的属性
 > 内部基于 ES6 的 Proxy 实现，通过代理对象操作源对象内部数据都是响应式的
+
+## setup 细节问题：
+
+> beforeCreate 之前执行，且只执行一次
+> setup 执行时，组件对象还未创建，此时 this 是 undefined ,不能使用
+> this 是 undefined,不能通过 this 来访问 data,props,methods,computed 等
+> 其实所有的 compositionAPI 相关的回调函数都不能使用
