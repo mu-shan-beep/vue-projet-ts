@@ -20,9 +20,70 @@
 > 响应式转换是“深层的”：会影响对象内部所有嵌套的属性
 > 内部基于 ES6 的 Proxy 实现，通过代理对象操作源对象内部数据都是响应式的
 
-## setup 细节问题：
+## setup：
+
+### 细节问题：
 
 > beforeCreate 之前执行，且只执行一次
 > setup 执行时，组件对象还未创建，此时 this 是 undefined ,不能使用
 > this 是 undefined,不能通过 this 来访问 data,props,methods,computed 等
 > 其实所有的 compositionAPI 相关的回调函数都不能使用
+> setup 返回值是一个对象，其中的属性和方法一般是给 html 模板使用的
+> setup 中的属性和 data 中的 return 对象属性都可以在 html 模板中使用
+> setup 中的对象中的方法和 methos 中的方法会合并位组件对象的方法
+> Vue3 中尽量不要混合使用 data,setup,methods 混合使用
+> setup 不能是一个 async 函数，因为返回的是一个 Promise,模板看不到 return 对象中的属性数据
+> setup 中不能访问 data 和 methods 中的数据,因为不能访问到 this
+
+### 参数：
+
+- props 父级组件向子级组件传的所有参数,并且是在子级中使用 props 接收到的所有属性
+- context 是一个对象,里面有 attrs 对象(获取当前组件标签上的属性,但是各属性实在 props 中没有声明接受的所有的对象),emit 方法(分发事件的),slots (插槽)对象
+
+## ref 和 reactive 对比
+
+- ref 中如果放入对象或数组，内部会通过 reactive 处理,转换为 reactivew 的代理对象
+- ref 内部通过给 value 属性添加 getter 和 setter 来实现对象数据的劫持
+- reactive 内部:通过使用 Proxy 来实现对象内部所有数据的劫持,并通过 Reflect 操作对象内部数据
+- ref 的内部数据操作:在 JS 中要.value,在模板中不用（内部解析会自动添加）
+
+## computed 和 watch
+
+- vue3 的计算属性的函数如果只传入一个回调函数，表示的是 get,返回的是一个 ref 对象
+  `const fullName1 = computed(() => { return user.lastName + user.firstName; });`
+
+- 如果需要有 getter 和 setter 操作,就要传入一个对象
+  `const fullName2 = computed({ get() { return user.firstName + "-" + user.lastName; }, set(val: string) { const names = val.split("-"); user.lastName = names[0]; user.firstName = names[1]; } });`
+
+- watch 监听属性一开是不会执行,如果要进入就执行,需要设置 immediate 属性为 true,deep 属性为深度监听
+  `watch( user, ({ firstName, lastName }) => { fullName3.value = firstName + lastName; }, { immediate: true ,deep:true} ); firstName, lastName 为要监听的属性`
+
+- watchEffect 默认会直接执行一次
+  `watchEffect(() => { fullName3.value = user.firstName + user.lastName; });`
+
+- watch 可以监听多个数据
+  `watch([()=>user.firstName,()=>user.lastName,()=>fullName3],()=>{ console.log("我是多个监听数据"); })`
+
+## 生命周期
+
+`beforeCreate, created, beforeMount, mounted, beforeUpdate, updated, beforeUnmount, unmounted`
+
+## toRefs
+
+- 可将响应式数据变成变成普通对象，并且普通对象的每一个 property 都是一个 ref
+
+## shallowReactive 和 shallowRef 深浅劫持
+
+- shallowRef 只处理 value 的响应式，不进行对象的 reactive 处理
+
+- shallowReactive 只处理最外层数据，不进行对象的 reactive 处理
+
+## readonly 和 shallowReadonly 深度只读和浅只读
+
+- readonly 深层次只读，所有层次均不能修改
+- shallowreadonly 浅层只读，最外层数据只读，内层可修改
+
+## toRaw 和 markRaw
+
+- toRaw 代理对象变为普通对象，数据更新页面不变
+- markRaw 标记的数据从此不能变为代理对象不会更新

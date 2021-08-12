@@ -1,4 +1,5 @@
 <template>
+  <h2>ref+ reactive</h2>
   <p>{{ count }}</p>
   <button @click="updateCount">增加</button>
   <p>name:{{ obj.name }}</p>
