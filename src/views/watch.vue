@@ -59,7 +59,7 @@ export default defineComponent({
     //   ({ firstName, lastName }) => {
     //     fullName3.value = firstName + lastName;
     //   },
-    //   { immediate: true }
+    //   { immediate: true, deep: true }
     // );
 
     // watchEffect(() => {
@@ -67,8 +67,7 @@ export default defineComponent({
     // });
 
     // watchEffect(() => {
-    // 	console.log(fullName3,"fullName3");
-
+    // 	 console.log(fullName3,"fullName3");
     //   const names = fullName3.value.split("-");
     //   user.firstName = names[0];
     //   user.lastName = names[1];

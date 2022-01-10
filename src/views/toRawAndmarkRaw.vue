@@ -7,7 +7,9 @@
 </template>
 
 <script lang="ts">
+import store from "@/store";
 import { defineComponent, markRaw, reactive, toRaw } from "vue";
+import { useRoute } from "vue-router";
 interface userInfo {
   name?: string;
   age?: number;
@@ -16,6 +18,9 @@ interface userInfo {
 }
 export default defineComponent({
   setup() {
+    console.log(store);
+    // store.commit("changeAbc", "1111111111111111");
+    store.dispatch("changeA", "22222222");
     const state = reactive<userInfo>({
       name: "小明",
       age: 20,
@@ -24,6 +29,9 @@ export default defineComponent({
         name: "奔驰",
       },
     });
+
+
+    
 
     const testToraw = () => {
       const user = toRaw(state);

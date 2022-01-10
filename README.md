@@ -16,9 +16,10 @@
 
 > 返回对象的代理对象 Proxy，被代理的目标对象是传入的对象
 > 作用: 定义多个数据的响应式
-> const proxy = reactive(obj): 接收一个普通对象然后返回该普通对象的响应式代理器对象
+> const proxy = reactive(obj): 接受一个普通对象然后返回该普通对象的响应式代理器对象
 > 响应式转换是“深层的”：会影响对象内部所有嵌套的属性
 > 内部基于 ES6 的 Proxy 实现，通过代理对象操作源对象内部数据都是响应式的
+> 数组或对象不能直接赋值，否则不能触发响应式
 
 ## setup：
 
@@ -38,7 +39,7 @@
 ### 参数：
 
 - props 父级组件向子级组件传的所有参数,并且是在子级中使用 props 接收到的所有属性
-- context 是一个对象,里面有 attrs 对象(获取当前组件标签上的属性,但是各属性实在 props 中没有声明接受的所有的对象),emit 方法(分发事件的),slots (插槽)对象
+- context 是一个对象,里面有 attrs 对象(获取当前组件标签上的属性,但是各属性是在 props 中没有声明接受的所有的对象),emit 方法(分发事件的),slots (插槽)对象
 
 ## ref 和 reactive 对比
 
@@ -50,19 +51,53 @@
 ## computed 和 watch
 
 - vue3 的计算属性的函数如果只传入一个回调函数，表示的是 get,返回的是一个 ref 对象
-  `const fullName1 = computed(() => { return user.lastName + user.firstName; });`
+
+  ```
+  const fullName1 = computed(() => { return user.lastName + user.firstName; });
+  ```
 
 - 如果需要有 getter 和 setter 操作,就要传入一个对象
-  `const fullName2 = computed({ get() { return user.firstName + "-" + user.lastName; }, set(val: string) { const names = val.split("-"); user.lastName = names[0]; user.firstName = names[1]; } });`
 
-- watch 监听属性一开是不会执行,如果要进入就执行,需要设置 immediate 属性为 true,deep 属性为深度监听
-  `watch( user, ({ firstName, lastName }) => { fullName3.value = firstName + lastName; }, { immediate: true ,deep:true} ); firstName, lastName 为要监听的属性`
+```
+    const fullName2 = computed({
+      get() {
+        return user.firstName + "-" + user.lastName;
+      },
+      set(val: string) {
+        const names = val.split("-");
+        user.lastName = names[0];
+        user.firstName = names[1];
+      },
+    });
+
+```
+
+- watch 监听属性一开始不会执行,如果要进入就执行,需要设置 immediate 属性为 true,deep 属性为深度监听
+
+  ```
+    watch(
+      user,
+      ({ firstName, lastName }) => {
+        fullName3.value = firstName + lastName;
+      },
+      { immediate: true, deep: true }
+    );
+
+  ```
 
 - watchEffect 默认会直接执行一次
-  `watchEffect(() => { fullName3.value = user.firstName + user.lastName; });`
+
+  ```
+  watchEffect(() => { fullName3.value = user.firstName + user.lastName; });
+  ```
 
 - watch 可以监听多个数据
-  `watch([()=>user.firstName,()=>user.lastName,()=>fullName3],()=>{ console.log("我是多个监听数据"); })`
+  ```
+  watch([()=>user.firstName,()=>user.lastName,()=>fullName3],
+  ()=>{
+     	console.log("我是多个监听数据");
+   });
+  ```
 
 ## 生命周期
 
@@ -87,3 +122,77 @@
 
 - toRaw 代理对象变为普通对象，数据更新页面不变
 - markRaw 标记的数据从此不能变为代理对象不会更新
+
+## customRef
+
+- 自定义 ref，可以显示地控制依赖追踪和出发响应，接受一个工程函数，两个参数分别是用于追踪的 track，与用于触发响应的 trigger，并返回一个带有 get 和 set 的属性对象。
+
+```
+function userDeouncedRef<T>(value: T, delay = 500) {
+  let timerID: number;
+  return customRef((track, trigger) => {
+    return {
+      get() {
+        // 告诉Vue追踪数据
+        track();
+        return value;
+      },
+      set(newVal: T) {
+        console.log(newVal, "asaaaa");
+        clearTimeout(timerID);
+        timerID = setTimeout(() => {
+          value = newVal;
+          // 告诉vue更新数据
+          trigger();
+        }, delay);
+      },
+    };
+  });
+}
+```
+
+## provide 和 inject 提供与注入，实现跨组件传递数据（子级组件和祖级组件）
+
+- provide 提供
+
+```
+provide("xxx",data);
+```
+
+- inject 注入
+
+```
+ const xxx = inject("xxx")
+```
+
+## isRef，isReactive,isReadonly,isProxy
+
+- isRef 判断值是否是 ref 创建的
+- isRactive 判断对象是否是 reactive 创建
+- isReadonly 判断对象是否是只读的
+- isProxy 判断值是否是 Proxy
+
+## Fragment (片段)
+
+- vue3 中可以没有根标签，会包裹在一个 Fragment 的虚拟元素中,可以减少标签层级，减少内存的占用
+
+## Teleport(瞬移) 提供一种干净的方式让组件的 html 添加在父组件界面外的特定标签（一般是 body）下面显示
+
+`<Teleport to="body"></Teleport>`
+
+## Suspense 不确定的
+
+`
+<Suspense>
+<template>
+//异步组件
+<abc/>
+</template>
+
+<!-- 组件加载时显示 -->
+
+<template><template  v-slot:fallback>
+</Suspense>
+`
+
+`defineAsyncComponent(()=>{}) Vue3动态引入组件`

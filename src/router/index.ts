@@ -36,7 +36,18 @@ const routes: Array<RouteRecordRaw> = [
     path: "/toraw",
     name: 'toraw',
     component: () => import(/*webpackChunkName:"about"*/ "@/views/toRawAndmarkRaw.vue")
+  },
+  {
+    path: "/custom",
+    name: 'custom',
+    component: () => import(/*webpackChunkName:"about"*/ "@/views/customRef.vue")
+  },
+  {
+    path: "/provide-inject",
+    name: 'provide-inject',
+    component: () => import(/*webpackChunkName:"about"*/ "@/views/provide-inject.vue")
   }
+
 ]
 
 const router = createRouter({

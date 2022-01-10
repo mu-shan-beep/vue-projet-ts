@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="./index.js"></script>
+    <script>
+      //   {
+      //     const proxyUser = shallowReactive({
+      //       name: "小明",
+      //       age: 12,
+      //       gener: "男",
+      //       wife: {
+      //         name: "小红",
+      //         age: 21,
+      //       },
+      //     });
+
+      //     proxyUser.name += "++";
+      //     proxyUser.wife.name += "++";
+      //     delete proxyUser.name;
+      //     delete proxyUser.wife.name;
+      //   }
+
+      {
+        const proxyUser = reactive({
+          name: "小明",
+          age: 12,
+          gener: "男",
+          wife: {
+            name: "小红",
+            age: 21,
+          },
+        });
+
+        proxyUser.name += "++";
+        proxyUser.wife.name += "++";
+        //   delete proxyUser.name;
+        //   delete proxyUser.wife.name;
+      }
+    </script>
+  </body>
+</html>

@@ -15,6 +15,8 @@
   <div><router-link to="/shallow">进入shallow</router-link></div>
   <div><router-link to="/readonly">进入readonly</router-link></div>
   <div><router-link to="/toraw">进入toraw</router-link></div>
+  <div><router-link to="/custom">进入custom</router-link></div>
+  <div><router-link to="/provide-inject">进入provide-inject</router-link></div>
 
   <button @click="isShow = !isShow">显示隐藏</button>
   <live v-if="isShow" />
@@ -31,6 +33,7 @@ import computeds from "@/views/computed.vue";
 import watch from "@/views/watch.vue";
 import live from "@/views/live.vue";
 import { defineComponent, reactive, ref } from "vue";
+import router from "./router";
 export default defineComponent({
   components: {
     Home,
@@ -41,6 +44,13 @@ export default defineComponent({
     live,
   },
   setup() {
+    console.log(router);
+    router.push({
+      path: "/toraw",
+      params: {
+        abc: "小明",
+      },
+    });
     const isShow = ref(true);
     return {
       isShow,
